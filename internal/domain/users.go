@@ -1,6 +1,7 @@
 package domain
 
 import (
+	"authentication-service/internal/data"
 	"authentication-service/internal/service"
 	"errors"
 	"golang.org/x/crypto/bcrypt"
@@ -21,32 +22,38 @@ type User struct {
 	Version   int
 }
 
-func CreateUserFromUserRegisterInput(input service.UserRegisterInput) (*User, *OperationErrors) {
-	validationErrors := &OperationErrors{
-		Validation: make(map[string][]string),
+func (user *User) IntoUserDataModel() *data.UserModel {
+	return &data.UserModel{
+		ID:        user.ID,
+		CreatedAt: user.CreatedAt,
+		Name:      user.Name.Inner_value,
+		Email:     user.Email.Inner_value,
+		Password:  user.Password.PasswordHash,
+		Activated: user.Activated,
+		Version:   user.Version,
 	}
+}
+func FromServiceUserRegisterInput(input service.UserRegisterInput) (*User, *OperationErrors) {
+	validationErrors := &OperationErrors{Validation: make(map[string][]string)}
 
-	// Create a new user
-	user := &User{
-		CreatedAt: time.Now(),
-	}
+	name := name{}
+	name.Set(input.Name, validationErrors)
 
-	// Validate and set the name
-	user.Name.Set(input.Name, validationErrors)
+	email := email{}
+	email.Set(input.Email, validationErrors)
 
-	// Validate and set the email
-	user.Email.Set(input.Email, validationErrors)
+	password := password{}
+	password.Set(input.Password, validationErrors)
 
-	// Validate and set the password
-	user.Password.Set(input.Password, validationErrors)
-
-	// If there are validation errors, return nil and the errors
 	if len(validationErrors.Validation) > 0 {
 		return nil, validationErrors
 	}
 
-	// Return the created user if no validation errors
-	return user, nil
+	return &User{
+		Name:     name,
+		Email:    email,
+		Password: password,
+	}, nil
 }
 
 type name struct {

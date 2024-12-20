@@ -1,0 +1,12 @@
+
+Service layer
+///to do change all to return error
+//add operationsErrors to ctx
+//create context getter and setter
+//change the interface for the service manager
+//check if email exists before
+//remove some complexity
+
+api layer
+//add routes
+//start scaffolding

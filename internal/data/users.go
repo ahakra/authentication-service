@@ -27,7 +27,7 @@ type UserModel struct {
 	Version   int
 }
 
-func CreateUserModelFromUserDomain(u *domain.User) *UserModel {
+func (um *UserModel) FromUserDomain(u *domain.User) *UserModel {
 	return &UserModel{
 		Name:      u.Name.Inner_value,
 		CreatedAt: u.CreatedAt,

@@ -4,6 +4,7 @@ import (
 	"authentication-service/internal/data"
 	"authentication-service/internal/domain"
 	"context"
+	"time"
 )
 
 type UserRegisterInput struct {
@@ -12,7 +13,7 @@ type UserRegisterInput struct {
 	Password string `json:"password"`
 }
 
-type UserRegisterOutput struct {
+type UserResponse struct {
 	Name  string `json:"name"`
 	Email string `json:"email"`
 }
@@ -28,14 +29,19 @@ func NewUserService(repoManager data.RepoManager) *UserService {
 }
 
 // RegisterUser registers a new user in the system
-func (s *UserService) RegisterUser(ctx context.Context, input *UserRegisterInput) (*UserRegisterOutput, *domain.OperationErrors) {
+func (s *UserService) RegisterUser(ctx context.Context, input *UserRegisterInput) (*UserResponse, *domain.OperationErrors) {
 
-	user, operationError := domain.CreateUserFromUserRegisterInput(*input)
+	// Create a new user
+	user := &domain.User{
+		CreatedAt: time.Now(),
+	}
+	validateUser, operationError := domain.FromServiceUserRegisterInput(*input)
 
 	if len(operationError.Validation) > 0 {
 		return nil, operationError
 	}
-	userModel := data.CreateUserModelFromUserDomain(user)
+	userModel := &data.UserModel{}
+	userModel.FromUserDomain(validateUser)
 
 	err := s.RepoManager.UserRepo.Insert(userModel)
 	if err != nil {
@@ -43,7 +49,7 @@ func (s *UserService) RegisterUser(ctx context.Context, input *UserRegisterInput
 		operationError.AddDatabaseError("Database", err.Error())
 		return nil, operationError
 	}
-	output := UserRegisterOutput{
+	output := UserResponse{
 		Name:  user.Name.Inner_value,
 		Email: user.Email.Inner_value,
 	}
@@ -51,13 +57,46 @@ func (s *UserService) RegisterUser(ctx context.Context, input *UserRegisterInput
 }
 
 // GetUserByEmail retrieves a user by email from the system
-func (s *UserService) GetUserByEmail(email string) (*data.UserModel, error) {
-	// You could add additional logic here, e.g., check if the user is activated
-	return s.RepoManager.UserRepo.GetByEmail(email)
+func (s *UserService) GetUserByEmail(email string) (*UserResponse, *domain.OperationErrors) {
+	operationError := domain.OperationErrors{
+		Database:   make(map[string][]string),
+		Validation: make(map[string][]string),
+	}
+	userModel, err := s.RepoManager.UserRepo.GetByEmail(email)
+	if err != nil {
+		operationError.Database = make(map[string][]string)
+		operationError.AddDatabaseError("Database", err.Error())
+		return nil, &operationError
+	}
+	output := UserResponse{
+		Name:  userModel.Name,
+		Email: userModel.Email,
+	}
+	return &output, nil
 }
 
 // UpdateUser updates an existing user in the system
-func (s *UserService) UpdateUser(user *data.User) error {
-	// Add any business logic here before updating the user, such as validation or logging
-	return s.RepoManager.UserRepo.Update(user)
+func (s *UserService) UpdateUser(input *UserRegisterInput) (*UserResponse, *domain.OperationErrors) {
+	user := &domain.User{
+		CreatedAt: time.Now(),
+	}
+	validateUser, operationError := domain.FromServiceUserRegisterInput(*input)
+
+	if len(operationError.Validation) > 0 {
+		return nil, operationError
+	}
+	userModel := &data.UserModel{}
+	userModel.FromUserDomain(validateUser)
+
+	err := s.RepoManager.UserRepo.Update(userModel)
+	if err != nil {
+		operationError.Database = make(map[string][]string)
+		operationError.AddDatabaseError("Database", err.Error())
+		return nil, operationError
+	}
+	output := UserResponse{
+		Name:  user.Name.Inner_value,
+		Email: user.Email.Inner_value,
+	}
+	return &output, nil
 }
