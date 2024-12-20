@@ -2,6 +2,7 @@ package main
 
 import (
 	"flag"
+	_ "github.com/mattn/go-sqlite3"
 	"log/slog"
 	"os"
 )
@@ -13,6 +14,10 @@ type config struct {
 	jsonConfig struct {
 		maxByte            int
 		allowUnknownFields bool
+	}
+
+	db struct {
+		dsn string
 	}
 }
 type application struct {
@@ -32,6 +37,8 @@ func main() {
 
 	flag.IntVar(&cfg.jsonConfig.maxByte, "Maxbytes", 1_048_576, "MAX Bytes for JSON Body")
 	flag.BoolVar(&cfg.jsonConfig.allowUnknownFields, "AllowUnknownFields", false, "Allow unknown fields in JSON Body")
+
+	flag.StringVar(&cfg.db.dsn, "db-dsn", "./database.db", "SQLITE3 DSN")
 	flag.Parse()
 
 	logger := slog.New(slog.NewTextHandler(os.Stdout, nil))
@@ -40,8 +47,52 @@ func main() {
 		config: cfg,
 		logger: logger,
 	}
+	//db, err := openDB(cfg)
+	//if err != nil {
+	//	logger.Error(err.Error())
+	//	os.Exit(1)
+	//}
+	//defer db.Close()
 
 	err := app.serve()
 	logger.Error(err.Error())
 
 }
+
+//
+//func openDB(cfg config) (*sql.DB, error) {
+//
+//	db, err := sql.Open("sqlite3", cfg.db.dsn)
+//	if err != nil {
+//		return nil, err
+//	}
+//
+//	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+//	defer cancel()
+//
+//	err = db.PingContext(ctx)
+//	if err != nil {
+//		db.Close()
+//		return nil, err
+//	}
+//
+//	return db, nil
+//}
+//func openDB(cfg config) (*sql.DB, error) {
+//
+//	db, err := sql.Open("sqlite3", cfg.db.dsn)
+//	if err != nil {
+//		return nil, err
+//	}
+//
+//	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+//	defer cancel()
+//
+//	err = db.PingContext(ctx)
+//	if err != nil {
+//		db.Close()
+//		return nil, err
+//	}
+//
+//	return db, nil
+//}
