@@ -1,7 +1,7 @@
 package data
 
 type UserRepositoryInterface interface {
-	Insert(user *UserModel) error
+	Insert(user *UserModel) (*UserModel, error)
 	GetByEmail(email string) (*UserModel, error)
 	Update(user *UserModel) error
 }

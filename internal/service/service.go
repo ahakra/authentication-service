@@ -1,14 +1,9 @@
 package service
 
-import (
-	"authentication-service/internal/domain"
-	"net/http"
-)
-
 type UserServiceInterface interface {
-	RegisterUser(r *http.Request) error
-	GetUserByEmail(email string) (*domain.User, error)
-	UpdateUser(r *http.Request) error
+	RegisterUser(input *UserRegisterInput) (*UserResponse, *OperationErrors)
+	GetUserByEmail(email string) (*UserResponse, *OperationErrors)
+	UpdateUser(input *UserRegisterInput) *OperationErrors
 }
 
 type ServiceManager struct {

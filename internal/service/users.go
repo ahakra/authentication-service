@@ -2,21 +2,8 @@ package service
 
 import (
 	"authentication-service/internal/data"
-	"authentication-service/internal/domain"
-	"context"
 	"time"
 )
-
-type UserRegisterInput struct {
-	Name     string `json:"name"`
-	Email    string `json:"email"`
-	Password string `json:"password"`
-}
-
-type UserResponse struct {
-	Name  string `json:"name"`
-	Email string `json:"email"`
-}
 
 // UserService implements the UserServiceInterface and contains the business logic
 type UserService struct {
@@ -28,75 +15,89 @@ func NewUserService(repoManager data.RepoManager) *UserService {
 	return &UserService{RepoManager: repoManager}
 }
 
-// RegisterUser registers a new user in the system
-func (s *UserService) RegisterUser(ctx context.Context, input *UserRegisterInput) (*UserResponse, *domain.OperationErrors) {
+type UserRegisterInput struct {
+	Name     string `json:"name"`
+	Email    string `json:"email"`
+	Password string `json:"password"`
+}
 
-	// Create a new user
-	user := &domain.User{
-		CreatedAt: time.Now(),
+func (uri *UserRegisterInput) IntoUserModel() (*data.UserModel, *OperationErrors) {
+	validationErrors := &OperationErrors{
+		Validation: make(map[string][]string),
+		Database:   make(map[string][]string),
 	}
-	validateUser, operationError := domain.FromServiceUserRegisterInput(*input)
+
+	user := &data.UserModel{}
+	// Validate and set the name
+	user.Name.Set(uri.Name, validationErrors)
+
+	// Validate and set the email
+	user.Email.Set(uri.Email, validationErrors)
+
+	// Validate and set the password
+	user.Password.Set(uri.Password, validationErrors)
+	user.CreatedAt = time.Now()
+	// If there are validation errors, return nil and the errors
+	if len(validationErrors.Validation) > 0 {
+		return nil, validationErrors
+	}
+
+	// Return the created user if no validation errors
+	return user, nil
+}
+
+type UserResponse struct {
+	ID    int64  `json:"id"`
+	Name  string `json:"name"`
+	Email string `json:"email"`
+}
+
+// RegisterUser registers a new user in the system
+func (s *UserService) RegisterUser(input *UserRegisterInput) (*UserResponse, *OperationErrors) {
+
+	validateUser, operationError := input.IntoUserModel()
 
 	if len(operationError.Validation) > 0 {
 		return nil, operationError
 	}
-	userModel := &data.UserModel{}
-	userModel.FromUserDomain(validateUser)
-
-	err := s.RepoManager.UserRepo.Insert(userModel)
+	output, err := s.RepoManager.UserRepo.Insert(validateUser)
 	if err != nil {
-		operationError.Database = make(map[string][]string)
-		operationError.AddDatabaseError("Database", err.Error())
+		operationError.AddDatabaseError("database", err.Error())
 		return nil, operationError
 	}
-	output := UserResponse{
-		Name:  user.Name.Inner_value,
-		Email: user.Email.Inner_value,
-	}
-	return &output, nil
+
+	return output.IntoUserResponse(), nil
 }
 
 // GetUserByEmail retrieves a user by email from the system
-func (s *UserService) GetUserByEmail(email string) (*UserResponse, *domain.OperationErrors) {
-	operationError := domain.OperationErrors{
+func (s *UserService) GetUserByEmail(email string) (*UserResponse, *OperationErrors) {
+	operationError := OperationErrors{
 		Database:   make(map[string][]string),
 		Validation: make(map[string][]string),
 	}
-	userModel, err := s.RepoManager.UserRepo.GetByEmail(email)
+	output, err := s.RepoManager.UserRepo.GetByEmail(email)
 	if err != nil {
 		operationError.Database = make(map[string][]string)
 		operationError.AddDatabaseError("Database", err.Error())
 		return nil, &operationError
 	}
-	output := UserResponse{
-		Name:  userModel.Name,
-		Email: userModel.Email,
-	}
-	return &output, nil
+
+	return output.IntoUserResponse(), nil
 }
 
 // UpdateUser updates an existing user in the system
-func (s *UserService) UpdateUser(input *UserRegisterInput) (*UserResponse, *domain.OperationErrors) {
-	user := &domain.User{
-		CreatedAt: time.Now(),
-	}
-	validateUser, operationError := domain.FromServiceUserRegisterInput(*input)
+func (s *UserService) UpdateUser(input *UserRegisterInput) *OperationErrors {
+	validateUser, operationError := input.IntoUserModel()
 
 	if len(operationError.Validation) > 0 {
-		return nil, operationError
+		return operationError
 	}
-	userModel := &data.UserModel{}
-	userModel.FromUserDomain(validateUser)
 
-	err := s.RepoManager.UserRepo.Update(userModel)
+	err := s.RepoManager.UserRepo.Update(validateUser)
 	if err != nil {
-		operationError.Database = make(map[string][]string)
 		operationError.AddDatabaseError("Database", err.Error())
-		return nil, operationError
+		return operationError
 	}
-	output := UserResponse{
-		Name:  user.Name.Inner_value,
-		Email: user.Email.Inner_value,
-	}
-	return &output, nil
+	validateUser.Version = validateUser.Version + 1
+	return nil
 }
