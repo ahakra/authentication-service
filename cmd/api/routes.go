@@ -16,5 +16,8 @@ func (app *application) routes() http.Handler {
 	r.MethodNotAllowed(app.routeResourceNotAllowedResponse)
 
 	r.Get("/healthcheck", app.healthcheckHandler)
+
+	r.Post("/registerUser", app.registerUserHandler)
+	r.Put("/registerUser", app.updateUserHandler)
 	return r
 }

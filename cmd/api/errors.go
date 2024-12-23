@@ -12,7 +12,7 @@ func (app *application) logError(r *http.Request, err error) {
 	app.logger.Error(err.Error(), "method", method, "uri", uri)
 }
 
-func (app *application) errorRespone(w http.ResponseWriter, r *http.Request, status int, data any) {
+func (app *application) errorResponse(w http.ResponseWriter, r *http.Request, status int, data any) {
 	res := responseData{"error": data}
 	err := app.writeJSON(w, status, res, nil)
 	if err != nil {
@@ -25,15 +25,20 @@ func (app *application) serverSideErrorResponse(w http.ResponseWriter, r *http.R
 
 	app.logError(r, err)
 	message := "internal server error"
-	app.errorRespone(w, r, http.StatusInternalServerError, message)
+	app.errorResponse(w, r, http.StatusInternalServerError, message)
 }
 
 func (app *application) routeNotFoundResponse(w http.ResponseWriter, r *http.Request) {
 	message := "route not found"
-	app.errorRespone(w, r, http.StatusNotFound, message)
+	app.errorResponse(w, r, http.StatusNotFound, message)
 }
 
 func (app *application) routeResourceNotAllowedResponse(w http.ResponseWriter, r *http.Request) {
 	message := fmt.Sprintf("the method %s is not supported for this route", r.Method)
-	app.errorRespone(w, r, http.StatusMethodNotAllowed, message)
+	app.errorResponse(w, r, http.StatusMethodNotAllowed, message)
+}
+
+func (app *application) badRequestResponse(w http.ResponseWriter, r *http.Request, err error) {
+	app.logError(r, err)
+	app.errorResponse(w, r, http.StatusBadRequest, err.Error())
 }

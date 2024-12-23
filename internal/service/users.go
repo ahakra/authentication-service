@@ -5,13 +5,12 @@ import (
 	"time"
 )
 
-// UserService implements the UserServiceInterface and contains the business logic
 type UserService struct {
-	RepoManager data.RepoManager
+	RepoManager *data.RepoManager
 }
 
 // NewUserService creates a new instance of UserService
-func NewUserService(repoManager data.RepoManager) *UserService {
+func NewUserService(repoManager *data.RepoManager) *UserService {
 	return &UserService{RepoManager: repoManager}
 }
 
@@ -60,6 +59,7 @@ func (s *UserService) RegisterUser(input *UserRegisterInput) (*UserResponse, *Op
 	if len(operationError.Validation) > 0 {
 		return nil, operationError
 	}
+	validateUser.Activated = false
 	output, err := s.RepoManager.UserRepo.Insert(validateUser)
 	if err != nil {
 		operationError.AddDatabaseError("database", err.Error())

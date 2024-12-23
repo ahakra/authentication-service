@@ -9,6 +9,9 @@ type UserRepositoryInterface interface {
 type RepoManager struct {
 	UserRepo UserRepositoryInterface
 }
+type RepoManagerInterface interface {
+	UserRepositoryInterface
+}
 
 // NewRepoManager creates a new instance of RepoManager with the given UserRepository
 func NewRepoManager(userRepo UserRepositoryInterface) *RepoManager {

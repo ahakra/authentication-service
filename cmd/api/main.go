@@ -1,6 +1,8 @@
 package main
 
 import (
+	"authentication-service/internal/data"
+	"authentication-service/internal/service"
 	"context"
 	"database/sql"
 	"flag"
@@ -24,8 +26,9 @@ type config struct {
 	}
 }
 type application struct {
-	config config
-	logger *slog.Logger
+	config   config
+	logger   *slog.Logger
+	services *service.ServiceManager
 }
 
 const version = "1.0.0"
@@ -56,6 +59,13 @@ func main() {
 		os.Exit(1)
 	}
 	defer db.Close()
+
+	userRepo := data.NewUserRepository(db)
+	repoManager := data.NewRepoManager(userRepo)
+
+	userService := service.NewUserService(repoManager)
+	serviceManager := service.NewServiceManager(userService)
+	app.services = serviceManager
 
 	err = app.serve()
 	logger.Error(err.Error())
