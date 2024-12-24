@@ -21,7 +21,7 @@ func (app *application) routes() http.Handler {
 		r.Post("/users", app.registerUserHandler)
 		r.Put("/users", app.updateUserHandler)
 
-		r.Post("/auth/validateEmail", app.validateUserEmailHandler)
+		r.Post("/auth/validateEmail", app.validateEmailHandler)
 
 		r.Post("/tokens/email", app.RegenerateEmailTokenHandler)
 		r.Post("/tokens/validate", app.ValidateTokenHandler)
