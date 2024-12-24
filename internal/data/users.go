@@ -50,12 +50,28 @@ func (r *UserRepository) GetByEmail(email string) (*UserModel, error) {
 
 	return &user, nil
 }
+func (r *UserRepository) GetById(userID int64) (*UserModel, error) {
+	query := `SELECT id, name, email, password_hash, activated, version, created_at 
+		FROM users WHERE id = ?`
+	row := r.DB.QueryRow(query, userID)
+
+	var user UserModel
+	err := row.Scan(&user.ID, &user.Name, &user.Email, &user.Password, &user.Activated, &user.Version, &user.CreatedAt)
+	if err != nil {
+		if err == sql.ErrNoRows {
+			return nil, fmt.Errorf("user with id %d not found", userID)
+		}
+		return nil, err
+	}
+
+	return &user, nil
+}
 
 // Update updates an existing user's details in the database
 func (r *UserRepository) Update(user *UserModel) error {
 
-	query := `UPDATE users SET name = ?, email = ?, password_hash = ?,  version = version + 1  
+	query := `UPDATE users SET name = ?, email = ?, password_hash = ?,  version = version + 1  , activated=?
 		WHERE id = ?`
-	_, err := r.DB.Exec(query, user.Name, user.Email, user.Password, user.ID)
+	_, err := r.DB.Exec(query, user.Name, user.Email, user.Password, user.ID, user.Activated)
 	return err
 }

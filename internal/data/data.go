@@ -4,6 +4,7 @@ type UserRepositoryInterface interface {
 	Insert(user *UserModel) (*UserModel, error)
 	GetByEmail(email string) (*UserModel, error)
 	Update(user *UserModel) error
+	GetById(userID int64) (*UserModel, error)
 }
 
 type TokenRepositoryInterface interface {

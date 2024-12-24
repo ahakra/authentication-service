@@ -11,6 +11,7 @@ type UserServiceInterface interface {
 	GetUserByEmail(email string) (*UserResponse, *domain.OperationErrors)
 	UpdateUser(input *UserRegisterInput) *domain.OperationErrors
 	ValidateUser(input RegenerateEmailTokenInput) (*ReGenerateEmailTokenResponse, error)
+	GetUserByID(userId int64) (*UserResponse, *domain.OperationErrors)
 }
 
 type TokenServiceInterface interface {
@@ -21,9 +22,11 @@ type TokenServiceInterface interface {
 	GetTokensForUserAndScope(userID int64, scope data.TokenScope) ([]data.Token, error)
 	DeleteToken(tokenHash []byte) error
 	InsertToken(token *data.Token) (*data.Token, error)
+	ExtractUserIdFromToken(tokenString string, secret string) (int64, error)
 }
 type PermissionsServiceInterface interface {
-	AddPermission(userID int64, permission string) error
+	AddPermission(permission string) error
+	AddPermissionToUser(userID int64, permission string) error
 	RemovePermission(userID int64, permission string) error
 	GetPermissionsForUser(userID int64) ([]string, error)
 }

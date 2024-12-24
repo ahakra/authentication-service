@@ -33,7 +33,7 @@ func (uri *UserRegisterInput) IntoUserDomainModel() (*domain.UserDomainModel, *d
 	user.Email.Set(uri.Email, validationErrors)
 
 	// Validate and set the password
-	user.Password.Set(uri.Password, validationErrors)
+	user.Password.Set(string(uri.Password), validationErrors)
 	user.CreatedAt = time.Now()
 	// If there are validation errors, return nil and the errors
 	if len(validationErrors.Validation) > 0 {
@@ -87,9 +87,33 @@ func (s *UserService) GetUserByEmail(email string) (*UserResponse, *domain.Opera
 	}
 
 	res := &UserResponse{
-		ID:    output.ID,
-		Name:  output.Name,
-		Email: output.Email,
+		ID:        output.ID,
+		Name:      output.Name,
+		Email:     output.Email,
+		Activated: output.Activated,
+		Password:  output.Password,
+	}
+	return res, nil
+}
+
+func (s *UserService) GetUserByID(userId int64) (*UserResponse, *domain.OperationErrors) {
+	operationError := domain.OperationErrors{
+		Database:   make(map[string][]string),
+		Validation: make(map[string][]string),
+	}
+	output, err := s.RepoManager.UserRepo.GetById(userId)
+	if err != nil {
+		operationError.Database = make(map[string][]string)
+		operationError.AddDatabaseError("Database", err.Error())
+		return nil, &operationError
+	}
+
+	res := &UserResponse{
+		ID:        output.ID,
+		Name:      output.Name,
+		Email:     output.Email,
+		Activated: output.Activated,
+		Password:  output.Password,
 	}
 	return res, nil
 }
@@ -114,7 +138,7 @@ func (s *UserService) UpdateUser(input *UserRegisterInput) *domain.OperationErro
 	pass := domain.Password{
 		PasswordHash: fromDatabaseUser.Password,
 	}
-	isMatch, err := pass.Matches(input.Password)
+	isMatch, err := pass.Matches(string(input.Password))
 	if err != nil && errors.Is(bcrypt.ErrMismatchedHashAndPassword, err) {
 		operationError.AddValidationError("Combination", "Invalid combination")
 		return operationError

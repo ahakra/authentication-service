@@ -4,11 +4,6 @@ package service
 
 type AddPermissionInput struct {
 	Permission string `json:"permission"`
-	UserID     int64  `json:"user_id"`
-}
-type RemovePermissionInput struct {
-	Permission string `json:"permission"`
-	UserID     int64  `json:"user_id"`
 }
 
 //------------------------------
@@ -34,9 +29,10 @@ type ValidateTokenResponse struct {
 //---------------------------------
 
 type UserRegisterInput struct {
-	Name     string `json:"name"`
-	Email    string `json:"email"`
-	Password string `json:"password"`
+	Name      string `json:"name"`
+	Email     string `json:"email"`
+	Password  []byte `json:"password"`
+	Activated bool   `json:"activated"`
 }
 
 type UserResponse struct {
@@ -44,4 +40,6 @@ type UserResponse struct {
 	Name              string `json:"name"`
 	Email             string `json:"email"`
 	VerificationToken string `json:"verification_token"`
+	Password          []byte `json:"-"`
+	Activated         bool   `json:"activated"`
 }

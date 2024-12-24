@@ -18,15 +18,18 @@ func (app *application) routes() http.Handler {
 	r.Get("/healthcheck", app.healthcheckHandler)
 
 	r.Route("/v1", func(r chi.Router) {
-		r.Post("/registerUser", app.registerUserHandler)
-		r.Put("/registerUser", app.updateUserHandler)
+		r.Post("/users", app.registerUserHandler)
+		r.Put("/users", app.updateUserHandler)
+
+		r.Post("/auth/validateEmail", app.validateUserEmailHandler)
 
 		r.Post("/tokens/email", app.RegenerateEmailTokenHandler)
 		r.Post("/tokens/validate", app.ValidateTokenHandler)
 
 		//To Do create a middleware to check if user has access rights
-		r.Post("/permissions/add", app.AddPermissionHandler)
-		r.Post("/permissions/remove", app.RemovePermissionHandler)
+		r.Post("/permissions", app.AddPermissionHandler)
+		r.Post("/users/{userID}/permissions", app.AddPermissionToUserHandler)
+		r.Delete("/users/{userID}/permissions/{permissionID}", app.RemovePermissionFromUserHandler)
 	})
 
 	return r

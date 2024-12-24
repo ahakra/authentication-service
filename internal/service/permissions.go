@@ -13,15 +13,26 @@ func NewPermissionsService(repoManager *data.RepoManager) *PermissionsService {
 	return &PermissionsService{RepoManager: repoManager}
 }
 
-func (s *PermissionsService) AddPermission(userID int64, permission string) error {
+func (s *PermissionsService) AddPermission(permission string) error {
 	err := s.RepoManager.PermissionsRepo.InsertPermissions(permission)
 	if err != nil {
+
 		return fmt.Errorf("could not add permission: %w", err)
 	}
 
+	return nil
+}
+func (s *PermissionsService) AddPermissionToUser(userID int64, permission string) error {
 	permissionID, err := s.RepoManager.PermissionsRepo.GetPermissionIDByName(permission)
 	if err != nil {
-		return fmt.Errorf("could not retrieve permission ID: %w", err)
+		if err := s.RepoManager.PermissionsRepo.InsertPermissions(permission); err != nil {
+			return fmt.Errorf("could not add permission: %w", err)
+		}
+
+		permissionID, err = s.RepoManager.PermissionsRepo.GetPermissionIDByName(permission)
+		if err != nil {
+			return fmt.Errorf("could not retrieve permission ID: %w", err)
+		}
 	}
 
 	err = s.RepoManager.PermissionsRepo.InsertUserPermissions(userID, permissionID)

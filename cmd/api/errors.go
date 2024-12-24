@@ -7,6 +7,7 @@ import (
 )
 
 var InvalidCombinationError = errors.New("invalid combination")
+var MissingAuthTokenError = errors.New("Missing authorization token")
 
 func (app *application) logError(r *http.Request, err error) {
 	var method = r.Method
