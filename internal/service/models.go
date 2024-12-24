@@ -1,5 +1,15 @@
 package service
 
+// -------------------------------
+type AddPermissionInput struct {
+	Permission string `json:"permission"`
+	UserID     int64  `json:"user_id"`
+}
+type RemovePermissionInput struct {
+	Permission string `json:"permission"`
+	UserID     int64  `json:"user_id"`
+}
+
 //------------------------------
 
 type RegenerateEmailTokenInput struct {
