@@ -2,6 +2,7 @@ package data
 
 import (
 	"database/sql"
+	"errors"
 	"fmt"
 	"log"
 	"slices"
@@ -54,7 +55,7 @@ func (m *PermissionsRepository) GetPermissionIDByName(permission string) (int64,
 	var permissionID int64
 	err := m.DB.QueryRow(query, permission).Scan(&permissionID)
 	if err != nil {
-		if err == sql.ErrNoRows {
+		if errors.Is(err, sql.ErrNoRows) {
 			return 0, fmt.Errorf("permission not found: %w", err)
 		}
 		return 0, fmt.Errorf("could not retrieve permission ID: %w", err)
