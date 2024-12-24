@@ -1,6 +1,7 @@
 package service
 
 // -------------------------------
+
 type AddPermissionInput struct {
 	Permission string `json:"permission"`
 	UserID     int64  `json:"user_id"`

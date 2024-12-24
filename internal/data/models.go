@@ -5,6 +5,7 @@ import "time"
 type Permissions []string
 
 // ------------------------
+
 type TokenScope string
 
 const (
@@ -20,6 +21,7 @@ type Token struct {
 }
 
 // ----------------
+
 type UserModel struct {
 	ID        int64
 	CreatedAt time.Time
