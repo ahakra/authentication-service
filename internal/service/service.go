@@ -23,6 +23,9 @@ type TokenServiceInterface interface {
 	InsertToken(token *data.Token) (*data.Token, error)
 }
 type PermissionsServiceInterface interface {
+	AddPermission(userID int64, permission string) error
+	RemovePermission(userID int64, permission string) error
+	GetPermissionsForUser(userID int64) ([]string, error)
 }
 type ServiceManager struct {
 	UserService        UserServiceInterface
