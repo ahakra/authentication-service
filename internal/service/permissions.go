@@ -9,8 +9,8 @@ type PermissionsService struct {
 	RepoManager *data.RepoManager
 }
 
-func NewPermissionsService(repoManager *data.RepoManager) *TokenService {
-	return &TokenService{RepoManager: repoManager}
+func NewPermissionsService(repoManager *data.RepoManager) *PermissionsService {
+	return &PermissionsService{RepoManager: repoManager}
 }
 
 func (s *PermissionsService) AddPermission(userID int64, permission string) error {

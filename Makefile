@@ -13,3 +13,4 @@ fmt:
 vet:
 	go vet ./...
 lint: fmt vet
+	golangci-lint run
