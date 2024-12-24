@@ -23,6 +23,10 @@ func (app *application) routes() http.Handler {
 
 		r.Post("/tokens/email", app.RegenerateEmailTokenHandler)
 		r.Post("/tokens/validate", app.ValidateTokenHandler)
+
+		//To Do create a middleware to check if user has access rights
+		r.Post("/permissions/add", app.AddPermissionHandler)
+		r.Post("/permissions/remove", app.RemovePermissionHandler)
 	})
 
 	return r
