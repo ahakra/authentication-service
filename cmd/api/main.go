@@ -20,6 +20,10 @@ type config struct {
 		maxByte            int
 		allowUnknownFields bool
 	}
+	tokenConfig struct {
+		secret string
+		ttl    time.Duration
+	}
 
 	db struct {
 		dsn string
@@ -45,6 +49,10 @@ func main() {
 	flag.BoolVar(&cfg.jsonConfig.allowUnknownFields, "AllowUnknownFields", false, "Allow unknown fields in JSON Body")
 
 	flag.StringVar(&cfg.db.dsn, "db-dsn", "./database.db", "SQLITE3 DSN")
+
+	flag.StringVar(&cfg.tokenConfig.secret, "secret", "defaultSecret", "The secret key for token signing")
+	flag.DurationVar(&cfg.tokenConfig.ttl, "ttl", 3*24*time.Hour, "The time-to-live for the token")
+
 	flag.Parse()
 
 	logger := slog.New(slog.NewTextHandler(os.Stdout, nil))
