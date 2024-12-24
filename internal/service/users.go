@@ -9,6 +9,11 @@ import (
 	"time"
 )
 
+// RegisterUser registers a new user in the system
+type UserService struct {
+	RepoManager *data.RepoManager
+}
+
 // NewUserService creates a new instance of UserService
 func NewUserService(repoManager *data.RepoManager) *UserService {
 	return &UserService{RepoManager: repoManager}
@@ -49,11 +54,6 @@ type UserResponse struct {
 	ID    int64  `json:"id"`
 	Name  string `json:"name"`
 	Email string `json:"email"`
-}
-
-// RegisterUser registers a new user in the system
-type UserService struct {
-	RepoManager *data.RepoManager
 }
 
 func (s *UserService) RegisterUser(input *UserRegisterInput) (*UserResponse, *domain.OperationErrors) {

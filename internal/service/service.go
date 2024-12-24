@@ -1,7 +1,9 @@
 package service
 
 import (
+	"authentication-service/internal/data"
 	"authentication-service/internal/domain"
+	"time"
 )
 
 type UserServiceInterface interface {
@@ -10,10 +12,22 @@ type UserServiceInterface interface {
 	UpdateUser(input *UserRegisterInput) *domain.OperationErrors
 }
 
-type ServiceManager struct {
-	UserService UserServiceInterface
+type TokenServiceInterface interface {
+	CreateAccessToken(userID int64, scope string, ttl time.Duration, secret string) (string, error)
+	ValidateToken(tokenString string, secret string) (bool, error)
+	GetTokensForUser(userID int64) ([]data.Token, error)
+	GetTokensForUserAndScope(userID int64, scope string) ([]data.Token, error)
+	DeleteToken(tokenHash []byte) error
 }
 
-func NewServiceManager(userService UserServiceInterface) *ServiceManager {
-	return &ServiceManager{UserService: userService}
+type ServiceManager struct {
+	UserService  UserServiceInterface
+	TokenService TokenServiceInterface
+}
+
+func NewServiceManager(userService UserServiceInterface, tokenService TokenServiceInterface) *ServiceManager {
+	return &ServiceManager{
+		UserService:  userService,
+		TokenService: tokenService,
+	}
 }

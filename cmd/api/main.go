@@ -61,10 +61,13 @@ func main() {
 	defer db.Close()
 
 	userRepo := data.NewUserRepository(db)
-	repoManager := data.NewRepoManager(userRepo)
+	tokenRepo := data.NewTokenRepository(db)
+	repoManager := data.NewRepoManager(userRepo, tokenRepo)
 
 	userService := service.NewUserService(repoManager)
-	serviceManager := service.NewServiceManager(userService)
+	tokenService := service.NewTokenService(repoManager)
+
+	serviceManager := service.NewServiceManager(userService, tokenService)
 	app.services = serviceManager
 
 	err = app.serve()
