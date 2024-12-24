@@ -19,5 +19,9 @@ func (app *application) routes() http.Handler {
 
 	r.Post("/registerUser", app.registerUserHandler)
 	r.Put("/registerUser", app.updateUserHandler)
+
+	r.Post("/tokens/email", app.ReGenerateEmailTokenHandler)
+	r.Post("/tokens/validate", app.ValidateTokenHandler)
+
 	return r
 }

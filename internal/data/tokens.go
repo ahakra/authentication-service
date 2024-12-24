@@ -62,7 +62,7 @@ func (r *TokenRepository) Insert(token *Token) (*Token, error) {
 	VALUES (?, ?, ?, ?)`
 
 	// Execute the query
-	_, err := r.DB.Exec(query, token.Hash, token.UserID, token.Expiry, token.Scope)
+	_, err := r.DB.Exec(query, token.Hash, token.UserID, token.Expiry, string(token.Scope))
 	if err != nil {
 		return nil, fmt.Errorf("could not insert token: %w", err)
 	}
@@ -107,21 +107,30 @@ func (repo *TokenRepository) GetByUserID(userID int64) ([]Token, error) {
 	return tokens, nil
 }
 
-func (repo *TokenRepository) GetByUserIDAndScope(userID int64, scope string) ([]Token, error) {
+func (repo *TokenRepository) GetByUserIDAndScope(userID int64, scope TokenScope) ([]Token, error) {
 	query := `SELECT hash, user_id, expiry, scope FROM tokens WHERE user_id = ? and scope = ?`
 
-	rows, err := repo.DB.Query(query, userID, scope)
+	rows, err := repo.DB.Query(query, userID, string(scope))
 	if err != nil {
 		return nil, fmt.Errorf("error querying tokens: %w", err)
 	}
 	defer rows.Close()
 
 	var tokens []Token
+	var expiry string
 
 	for rows.Next() {
 		var token Token
-		if err := rows.Scan(&token.Hash, &token.UserID, &token.Expiry, &token.Scope); err != nil {
+		if err := rows.Scan(&token.Hash, &token.UserID, &expiry, &token.Scope); err != nil {
 			return nil, fmt.Errorf("error scanning token: %w", err)
+		}
+		parsedExpiry, err := time.Parse("2006-01-02 15:04:05.999999-07:00", expiry)
+		if err != nil {
+			return nil, fmt.Errorf("error parsing expiry: %w", err)
+		}
+		token.Expiry = parsedExpiry
+		if !isValidTokenScope(string(token.Scope)) {
+			return nil, fmt.Errorf("invalid token scope: %s", token.Scope)
 		}
 		tokens = append(tokens, token)
 	}
@@ -131,4 +140,13 @@ func (repo *TokenRepository) GetByUserIDAndScope(userID int64, scope string) ([]
 	}
 
 	return tokens, nil
+}
+
+func isValidTokenScope(scope string) bool {
+	switch TokenScope(scope) {
+	case ActivateEmailToken, UserAccessToken:
+		return true
+	default:
+		return false
+	}
 }

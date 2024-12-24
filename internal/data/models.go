@@ -10,7 +10,7 @@ type TokenRepositoryInterface interface {
 	Insert(token *Token) (*Token, error)
 	Delete(hash []byte) error
 	GetByUserID(userID int64) ([]Token, error)
-	GetByUserIDAndScope(userID int64, scope string) ([]Token, error)
+	GetByUserIDAndScope(userID int64, scope TokenScope) ([]Token, error)
 }
 
 type PermissionsRepositoryInterface interface {

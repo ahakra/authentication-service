@@ -8,14 +8,14 @@ Go authentication service
 - [x] Add `registerUserHandler` route (`r.Post("/registerUser", app.registerUserHandler)`)
 - [x] Add `updateUserHandler` route (`r.Put("/registerUser", app.updateUserHandler)`)
 - [x] Create database table for tokens 
-### Token Service:
-- [ ] Add insert token to database
-    - [ ] Implement `Insert` method in `TokenRepository`
-    - [ ] Handle token insertion logic in `TokenService`
-
-- [ ] Add Token service routes
-    - [ ] Define the route for token creation (e.g., `/generateToken`)
-    - [ ] Define the route for token validation (e.g., `/validateToken`)
+- [x] Add insert token to database
+  - [x] Implement `Insert` method in `TokenRepository`
+  - [x] Handle token insertion logic in `TokenService`
+- [x] Add Token service routes
+  - [x] Define the route for token creation (`r.Post("/tokens/email", app.ReGenerateEmailTokenHandler)`)
+  - [x] Define the route for token validation (`"/tokens/validate", app.ValidateTokenHandler`)
+### ALL
+- [ ] Remodify all operation error
 
 ### Permission Service:
 - [ ] Add Permission insert
@@ -30,7 +30,7 @@ Go authentication service
 - [ ] Add reset email
     - [ ] Implement reset password functionality
     - [ ] Send reset email with a unique token
-
+    
 - [ ] Add reset user password
     - [ ] Define route for resetting user password
     - [ ] Implement logic to verify token and reset password in the database
@@ -38,6 +38,7 @@ Go authentication service
 - [ ] Add regenerate password
     - [ ] Create an endpoint to regenerate the password (e.g., `/regeneratePassword`)
 
+- [ ] Add Insert Token to database when creating new email
 ### Testing and Improvements:
 - [ ] Write Unit tests
     - [ ] Write tests for token insertion

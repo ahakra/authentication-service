@@ -148,3 +148,33 @@ func (s *UserService) UpdateUser(input *UserRegisterInput) *domain.OperationErro
 	}
 	return operationError
 }
+
+func (s *UserService) ValidateUser(input ReGenerateEmailTokenInput) (*ReGenerateEmailTokenResponse, error) {
+	fromDatabaseUser, err := s.RepoManager.UserRepo.GetByEmail(input.Email)
+	var response ReGenerateEmailTokenResponse
+	response.Email = input.Email
+
+	if err != nil {
+		response.IsMatch = false
+		return &response, err
+	}
+	response.ID = fromDatabaseUser.ID
+
+	pass := domain.Password{
+		PasswordHash: fromDatabaseUser.Password,
+	}
+	isMatch, err := pass.Matches(input.Password)
+	if err != nil && errors.Is(bcrypt.ErrMismatchedHashAndPassword, err) {
+		response.IsMatch = false
+
+		return &response, err
+	} else if err != nil {
+		return &response, err
+	}
+	fmt.Printf("Match user:%v\n", isMatch)
+	if isMatch {
+		response.IsMatch = true
+		return &response, nil
+	}
+	return &response, nil
+}

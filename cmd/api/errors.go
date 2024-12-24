@@ -1,9 +1,12 @@
 package main
 
 import (
+	"errors"
 	"fmt"
 	"net/http"
 )
+
+var InvalidCombinationError = errors.New("invalid combination")
 
 func (app *application) logError(r *http.Request, err error) {
 	var method = r.Method
