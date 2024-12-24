@@ -1,6 +1,7 @@
 package main
 
 import (
+	"authentication-service/internal/data"
 	"authentication-service/internal/service"
 	"net/http"
 )
@@ -20,6 +21,15 @@ func (app *application) registerUserHandler(w http.ResponseWriter, r *http.Reque
 		return
 	}
 
+	jwt, err := app.services.TokenService.CreateAccessToken(userResponse.ID,
+		data.ActivateEmailToken,
+		app.config.tokenConfig.ttl,
+		app.config.tokenConfig.secret)
+	if err != nil {
+		app.errorResponse(w, r, http.StatusUnprocessableEntity, err)
+	}
+
+	userResponse.VerificationToken = jwt
 	err = app.writeJSON(w, http.StatusCreated, userResponse, nil)
 	if err != nil {
 		app.serverSideErrorResponse(w, r, err)

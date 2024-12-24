@@ -13,7 +13,7 @@ type UserServiceInterface interface {
 }
 
 type TokenServiceInterface interface {
-	CreateAccessToken(userID int64, scope string, ttl time.Duration, secret string) (string, error)
+	CreateAccessToken(userID int64, scope data.TokenScope, ttl time.Duration, secret string) (string, error)
 	ValidateToken(tokenString string, secret string) (bool, error)
 	GetTokensForUser(userID int64) ([]data.Token, error)
 	GetTokensForUserAndScope(userID int64, scope string) ([]data.Token, error)

@@ -51,9 +51,10 @@ func (uri *UserRegisterInput) IntoUserDomainModel() (*domain.UserDomainModel, *d
 }
 
 type UserResponse struct {
-	ID    int64  `json:"id"`
-	Name  string `json:"name"`
-	Email string `json:"email"`
+	ID                int64  `json:"id"`
+	Name              string `json:"name"`
+	Email             string `json:"email"`
+	VerificationToken string `json:"verification_token"`
 }
 
 func (s *UserService) RegisterUser(input *UserRegisterInput) (*UserResponse, *domain.OperationErrors) {
@@ -76,6 +77,7 @@ func (s *UserService) RegisterUser(input *UserRegisterInput) (*UserResponse, *do
 		return nil, operationError
 	}
 	fmt.Printf("Returned User Model from Insert :%v\n", output)
+
 	res := &UserResponse{
 		ID:    output.ID,
 		Name:  output.Name,

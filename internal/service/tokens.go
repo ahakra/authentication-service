@@ -15,7 +15,7 @@ func NewTokenService(repoManager *data.RepoManager) *TokenService {
 	return &TokenService{RepoManager: repoManager}
 }
 
-func (s *TokenService) CreateAccessToken(userID int64, scope string, ttl time.Duration, secret string) (string, error) {
+func (s *TokenService) CreateAccessToken(userID int64, scope string, ttl time.Duration, secret data.TokenScope) (string, error) {
 	claims := jwt.MapClaims{
 		"sub":   userID,
 		"scope": scope,
