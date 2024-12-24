@@ -21,6 +21,9 @@ func (app *application) routes() http.Handler {
 		r.Post("/users", app.registerUserHandler)
 		r.Put("/users", app.updateUserHandler)
 
+		//to do add login
+		//check again register with domain password due to change in type
+
 		r.Post("/auth/validateEmail", app.validateEmailHandler)
 
 		r.Post("/tokens/email", app.RegenerateEmailTokenHandler)
