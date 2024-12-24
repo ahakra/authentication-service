@@ -2,12 +2,10 @@ package service
 
 import (
 	"authentication-service/internal/data"
+	"authentication-service/internal/domain"
+	"fmt"
 	"time"
 )
-
-type UserService struct {
-	RepoManager *data.RepoManager
-}
 
 // NewUserService creates a new instance of UserService
 func NewUserService(repoManager *data.RepoManager) *UserService {
@@ -20,13 +18,13 @@ type UserRegisterInput struct {
 	Password string `json:"password"`
 }
 
-func (uri *UserRegisterInput) IntoUserModel() (*data.UserModel, *OperationErrors) {
-	validationErrors := &OperationErrors{
+func (uri *UserRegisterInput) IntoUserDomainModel() (*domain.UserDomainModel, *domain.OperationErrors) {
+	validationErrors := &domain.OperationErrors{
 		Validation: make(map[string][]string),
 		Database:   make(map[string][]string),
 	}
 
-	user := &data.UserModel{}
+	user := &domain.UserDomainModel{}
 	// Validate and set the name
 	user.Name.Set(uri.Name, validationErrors)
 
@@ -42,7 +40,7 @@ func (uri *UserRegisterInput) IntoUserModel() (*data.UserModel, *OperationErrors
 	}
 
 	// Return the created user if no validation errors
-	return user, nil
+	return user, validationErrors
 }
 
 type UserResponse struct {
@@ -52,26 +50,41 @@ type UserResponse struct {
 }
 
 // RegisterUser registers a new user in the system
-func (s *UserService) RegisterUser(input *UserRegisterInput) (*UserResponse, *OperationErrors) {
+type UserService struct {
+	RepoManager *data.RepoManager
+}
 
-	validateUser, operationError := input.IntoUserModel()
+func (s *UserService) RegisterUser(input *UserRegisterInput) (*UserResponse, *domain.OperationErrors) {
 
+	validateUser, operationError := input.IntoUserDomainModel()
+
+	fmt.Printf("User Domain Model:%v\n", validateUser)
 	if len(operationError.Validation) > 0 {
 		return nil, operationError
 	}
 	validateUser.Activated = false
-	output, err := s.RepoManager.UserRepo.Insert(validateUser)
+	validateUser.Version = 1
+	fmt.Printf("User Domain Model after adding fields:%v\n", validateUser)
+
+	userModel := validateUser.IntoUserModel()
+	fmt.Printf("User Model To Insert :%v\n", userModel)
+	output, err := s.RepoManager.UserRepo.Insert(&userModel)
 	if err != nil {
 		operationError.AddDatabaseError("database", err.Error())
 		return nil, operationError
 	}
-
-	return output.IntoUserResponse(), nil
+	fmt.Printf("Returned User Model from Insert :%v\n", output)
+	res := &UserResponse{
+		ID:    output.ID,
+		Name:  output.Name,
+		Email: output.Email,
+	}
+	return res, nil
 }
 
 // GetUserByEmail retrieves a user by email from the system
-func (s *UserService) GetUserByEmail(email string) (*UserResponse, *OperationErrors) {
-	operationError := OperationErrors{
+func (s *UserService) GetUserByEmail(email string) (*UserResponse, *domain.OperationErrors) {
+	operationError := domain.OperationErrors{
 		Database:   make(map[string][]string),
 		Validation: make(map[string][]string),
 	}
@@ -82,18 +95,24 @@ func (s *UserService) GetUserByEmail(email string) (*UserResponse, *OperationErr
 		return nil, &operationError
 	}
 
-	return output.IntoUserResponse(), nil
+	res := &UserResponse{
+		ID:    output.ID,
+		Name:  output.Name,
+		Email: output.Email,
+	}
+	return res, nil
 }
 
 // UpdateUser updates an existing user in the system
-func (s *UserService) UpdateUser(input *UserRegisterInput) *OperationErrors {
-	validateUser, operationError := input.IntoUserModel()
+func (s *UserService) UpdateUser(input *UserRegisterInput) *domain.OperationErrors {
+	validateUser, operationError := input.IntoUserDomainModel()
 
 	if len(operationError.Validation) > 0 {
 		return operationError
 	}
 
-	err := s.RepoManager.UserRepo.Update(validateUser)
+	userModel := validateUser.IntoUserModel()
+	err := s.RepoManager.UserRepo.Update(&userModel)
 	if err != nil {
 		operationError.AddDatabaseError("Database", err.Error())
 		return operationError

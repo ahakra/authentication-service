@@ -13,6 +13,7 @@ func (app *application) registerUserHandler(w http.ResponseWriter, r *http.Reque
 		return
 	}
 
+	app.logger.Info("User Input:", "value", input)
 	userResponse, operationErrors := app.services.UserService.RegisterUser(&input)
 	if operationErrors != nil {
 		app.errorResponse(w, r, http.StatusUnprocessableEntity, operationErrors)

@@ -1,4 +1,4 @@
-package service
+package domain
 
 type OperationErrors struct {
 	Validation map[string][]string
