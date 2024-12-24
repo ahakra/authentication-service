@@ -1,5 +1,5 @@
 CREATE TABLE IF NOT EXISTS permissions (
-                                           id bigserial PRIMARY KEY,
+                                           id integer PRIMARY KEY AUTOINCREMENT,
                                            permission text NOT NULL
 );
 
