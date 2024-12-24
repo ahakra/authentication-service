@@ -7,8 +7,6 @@ import (
 	"slices"
 )
 
-type Permissions []string
-
 type PermissionsRepository struct {
 	DB *sql.DB
 }

@@ -7,23 +7,6 @@ import (
 	"time"
 )
 
-type ReGenerateEmailTokenInput struct {
-	Email    string `json:"email"`
-	Password string `json:"password"`
-}
-type ReGenerateEmailTokenResponse struct {
-	ID      int64  `json:"-"`
-	Email   string `json:"-"`
-	IsMatch bool   `json:"-"`
-	Token   string `json:"token"`
-}
-type ValidateTokenInput struct {
-	Token string `json:"token"`
-}
-type ValidateTokenResponse struct {
-	Token   string `json:"token"`
-	IsValid bool   `json:"is_valid"`
-}
 type TokenService struct {
 	RepoManager *data.RepoManager
 }

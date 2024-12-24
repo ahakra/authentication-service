@@ -7,9 +7,9 @@ import (
 	"time"
 )
 
-func (app *application) ReGenerateEmailTokenHandler(w http.ResponseWriter, r *http.Request) {
+func (app *application) RegenerateEmailTokenHandler(w http.ResponseWriter, r *http.Request) {
 
-	var input service.ReGenerateEmailTokenInput
+	var input service.RegenerateEmailTokenInput
 	err := app.readJSON(w, r, &input)
 	if err != nil {
 		app.badRequestResponse(w, r, err)

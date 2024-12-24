@@ -10,7 +10,7 @@ type UserServiceInterface interface {
 	RegisterUser(input *UserRegisterInput) (*UserResponse, *domain.OperationErrors)
 	GetUserByEmail(email string) (*UserResponse, *domain.OperationErrors)
 	UpdateUser(input *UserRegisterInput) *domain.OperationErrors
-	ValidateUser(input ReGenerateEmailTokenInput) (*ReGenerateEmailTokenResponse, error)
+	ValidateUser(input RegenerateEmailTokenInput) (*ReGenerateEmailTokenResponse, error)
 }
 
 type TokenServiceInterface interface {

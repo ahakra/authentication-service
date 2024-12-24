@@ -19,12 +19,6 @@ func NewUserService(repoManager *data.RepoManager) *UserService {
 	return &UserService{RepoManager: repoManager}
 }
 
-type UserRegisterInput struct {
-	Name     string `json:"name"`
-	Email    string `json:"email"`
-	Password string `json:"password"`
-}
-
 func (uri *UserRegisterInput) IntoUserDomainModel() (*domain.UserDomainModel, *domain.OperationErrors) {
 	validationErrors := &domain.OperationErrors{
 		Validation: make(map[string][]string),
@@ -48,13 +42,6 @@ func (uri *UserRegisterInput) IntoUserDomainModel() (*domain.UserDomainModel, *d
 
 	// Return the created user if no validation errors
 	return user, validationErrors
-}
-
-type UserResponse struct {
-	ID                int64  `json:"id"`
-	Name              string `json:"name"`
-	Email             string `json:"email"`
-	VerificationToken string `json:"verification_token"`
 }
 
 func (s *UserService) RegisterUser(input *UserRegisterInput) (*UserResponse, *domain.OperationErrors) {
@@ -149,7 +136,7 @@ func (s *UserService) UpdateUser(input *UserRegisterInput) *domain.OperationErro
 	return operationError
 }
 
-func (s *UserService) ValidateUser(input ReGenerateEmailTokenInput) (*ReGenerateEmailTokenResponse, error) {
+func (s *UserService) ValidateUser(input RegenerateEmailTokenInput) (*ReGenerateEmailTokenResponse, error) {
 	fromDatabaseUser, err := s.RepoManager.UserRepo.GetByEmail(input.Email)
 	var response ReGenerateEmailTokenResponse
 	response.Email = input.Email

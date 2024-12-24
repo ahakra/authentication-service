@@ -3,18 +3,7 @@ package data
 import (
 	"database/sql"
 	"fmt"
-	"time"
 )
-
-type UserModel struct {
-	ID        int64
-	CreatedAt time.Time
-	Name      string
-	Email     string
-	Password  []byte
-	Activated bool
-	Version   int
-}
 
 // UserRepository struct holds a reference to the database connection
 type UserRepository struct {

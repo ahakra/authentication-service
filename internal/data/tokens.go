@@ -9,20 +9,6 @@ import (
 	"time"
 )
 
-type TokenScope string
-
-const (
-	ActivateEmailToken TokenScope = "ActivateEmailToken"
-	UserAccessToken    TokenScope = "UserAccessToken"
-)
-
-type Token struct {
-	Hash   []byte     `json:"hash"`
-	UserID int64      `json:"user_id"`
-	Expiry time.Time  `json:"expiry"`
-	Scope  TokenScope `json:"scope"`
-}
-
 func GenerateHashToken() ([]byte, error) {
 	token, err := GenerateRandomToken()
 	if err != nil {
