@@ -70,12 +70,14 @@ func main() {
 
 	userRepo := data.NewUserRepository(db)
 	tokenRepo := data.NewTokenRepository(db)
-	repoManager := data.NewRepoManager(userRepo, tokenRepo)
+	permissionsRepo := data.NewPermissionsRepository(db)
+	repoManager := data.NewRepoManager(userRepo, tokenRepo, permissionsRepo)
 
 	userService := service.NewUserService(repoManager)
 	tokenService := service.NewTokenService(repoManager)
+	permissionsService := service.NewPermissionsService(repoManager)
 
-	serviceManager := service.NewServiceManager(userService, tokenService)
+	serviceManager := service.NewServiceManager(userService, tokenService, permissionsService)
 	app.services = serviceManager
 
 	err = app.serve()

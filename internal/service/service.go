@@ -19,15 +19,18 @@ type TokenServiceInterface interface {
 	GetTokensForUserAndScope(userID int64, scope string) ([]data.Token, error)
 	DeleteToken(tokenHash []byte) error
 }
-
+type PermissionsServiceInterface interface {
+}
 type ServiceManager struct {
-	UserService  UserServiceInterface
-	TokenService TokenServiceInterface
+	UserService        UserServiceInterface
+	TokenService       TokenServiceInterface
+	PermissionsService PermissionsServiceInterface
 }
 
-func NewServiceManager(userService UserServiceInterface, tokenService TokenServiceInterface) *ServiceManager {
+func NewServiceManager(userService UserServiceInterface, tokenService TokenServiceInterface, permissionsService PermissionsServiceInterface) *ServiceManager {
 	return &ServiceManager{
-		UserService:  userService,
-		TokenService: tokenService,
+		UserService:        userService,
+		TokenService:       tokenService,
+		PermissionsService: permissionsService,
 	}
 }
