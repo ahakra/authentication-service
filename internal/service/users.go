@@ -3,7 +3,9 @@ package service
 import (
 	"authentication-service/internal/data"
 	"authentication-service/internal/domain"
+	"errors"
 	"fmt"
+	"golang.org/x/crypto/bcrypt"
 	"time"
 )
 
@@ -112,11 +114,35 @@ func (s *UserService) UpdateUser(input *UserRegisterInput) *domain.OperationErro
 	}
 
 	userModel := validateUser.IntoUserModel()
-	err := s.RepoManager.UserRepo.Update(&userModel)
+
+	fromDatabaseUser, err := s.RepoManager.UserRepo.GetByEmail(userModel.Email)
+
 	if err != nil {
+		operationError.Database = make(map[string][]string)
 		operationError.AddDatabaseError("Database", err.Error())
 		return operationError
 	}
-	validateUser.Version = validateUser.Version + 1
-	return nil
+	pass := domain.Password{
+		PasswordHash: fromDatabaseUser.Password,
+	}
+	isMatch, err := pass.Matches(input.Password)
+	if err != nil && errors.Is(bcrypt.ErrMismatchedHashAndPassword, err) {
+		operationError.AddValidationError("Combination", "Invalid combination")
+		return operationError
+	} else if err != nil {
+		operationError.AddValidationError("Combination", "Invalid combination")
+		return operationError
+	}
+	fmt.Printf("Match user:%v\n", isMatch)
+	if isMatch {
+		userModel.ID = fromDatabaseUser.ID
+		err = s.RepoManager.UserRepo.Update(&userModel)
+		if err != nil {
+			operationError.AddDatabaseError("Database", err.Error())
+			return operationError
+		}
+
+		return nil
+	}
+	return operationError
 }

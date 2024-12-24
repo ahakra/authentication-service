@@ -64,6 +64,7 @@ func (r *UserRepository) GetByEmail(email string) (*UserModel, error) {
 
 // Update updates an existing user's details in the database
 func (r *UserRepository) Update(user *UserModel) error {
+
 	query := `UPDATE users SET name = ?, email = ?, password_hash = ?,  version = version + 1  
 		WHERE id = ?`
 	_, err := r.DB.Exec(query, user.Name, user.Email, user.Password, user.ID)

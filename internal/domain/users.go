@@ -16,7 +16,7 @@ type UserDomainModel struct {
 	CreatedAt time.Time
 	Name      name
 	Email     email
-	Password  password
+	Password  Password
 	Activated bool
 	Version   int
 }
@@ -101,12 +101,12 @@ func isValidEmail(email string) bool {
 	return re.MatchString(email)
 }
 
-type password struct {
+type Password struct {
 	passwordText *string
 	PasswordHash []byte
 }
 
-func (p *password) Set(plainTextPassword string, ve *OperationErrors) {
+func (p *Password) Set(plainTextPassword string, ve *OperationErrors) {
 	if len(plainTextPassword) < 8 {
 		ve.AddValidationError("password", "password must be at least 8 characters long")
 		return
@@ -120,7 +120,7 @@ func (p *password) Set(plainTextPassword string, ve *OperationErrors) {
 	p.PasswordHash = hash
 }
 
-func (p *password) Matches(plaintextPassword string) (bool, error) {
+func (p *Password) Matches(plaintextPassword string) (bool, error) {
 	err := bcrypt.CompareHashAndPassword(p.PasswordHash, []byte(plaintextPassword))
 	if err != nil {
 		switch {
