@@ -17,11 +17,13 @@ func (app *application) routes() http.Handler {
 
 	r.Get("/healthcheck", app.healthcheckHandler)
 
-	r.Post("/registerUser", app.registerUserHandler)
-	r.Put("/registerUser", app.updateUserHandler)
+	r.Route("/v1", func(r chi.Router) {
+		r.Post("/registerUser", app.registerUserHandler)
+		r.Put("/registerUser", app.updateUserHandler)
 
-	r.Post("/tokens/email", app.ReGenerateEmailTokenHandler)
-	r.Post("/tokens/validate", app.ValidateTokenHandler)
+		r.Post("/tokens/email", app.ReGenerateEmailTokenHandler)
+		r.Post("/tokens/validate", app.ValidateTokenHandler)
+	})
 
 	return r
 }
