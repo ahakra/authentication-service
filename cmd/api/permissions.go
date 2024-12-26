@@ -64,7 +64,7 @@ func (app *application) RemovePermissionFromUserHandler(w http.ResponseWriter, r
 		http.Error(w, "Invalid user ID", http.StatusBadRequest)
 		return
 	}
-	var input service.AddPermissionInput
+	var input service.DeletePermissionInput
 	err = app.readJSON(w, r, &input)
 	if err != nil {
 		app.badRequestResponse(w, r, err)

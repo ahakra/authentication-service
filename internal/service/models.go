@@ -17,6 +17,10 @@ type AddPermissionInput struct {
 	Permission string `json:"permission"`
 }
 
+type DeletePermissionInput struct {
+	Permission string `json:"permission"`
+}
+
 //------------------------------
 
 type RegenerateEmailTokenInput struct {
