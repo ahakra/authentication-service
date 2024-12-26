@@ -23,9 +23,9 @@ Go authentication service
 - [x] Add Insert Token to database when creating new email
 
 ### ALL
-- [ ] Remodify all operation error
+- [ ] Modify all operation error
 - [ ] Refactoring
-
+- [ ] Send email for email verification (needs an email microservice)
 ### User Service:
 - [ ] Add reset email
     - [ ] Implement reset password functionality
