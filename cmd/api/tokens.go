@@ -21,7 +21,7 @@ func (app *application) RegenerateEmailTokenHandler(w http.ResponseWriter, r *ht
 		app.serverSideErrorResponse(w, r, err)
 		return
 	}
-	if res.IsMatch == false {
+	if !res.IsMatch {
 		app.badRequestResponse(w, r, InvalidCombinationError)
 		return
 	}

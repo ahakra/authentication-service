@@ -173,7 +173,7 @@ func (s *UserService) ValidateUser(input RegenerateEmailTokenInput) (*ReGenerate
 		PasswordHash: fromDatabaseUser.Password,
 	}
 	isMatch, err := pass.Matches(input.Password)
-	if err != nil && errors.Is(bcrypt.ErrMismatchedHashAndPassword, err) {
+	if err != nil && errors.Is(err, bcrypt.ErrMismatchedHashAndPassword) {
 		response.IsMatch = false
 
 		return &response, err

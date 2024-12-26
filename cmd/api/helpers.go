@@ -24,8 +24,10 @@ func (app *application) writeJSON(w http.ResponseWriter, status int, data any, h
 		w.Header()[key] = value
 	}
 	w.WriteHeader(status)
-	w.Write(res)
-
+	_, err = w.Write(res)
+	if err != nil {
+		return err
+	}
 	return nil
 }
 
