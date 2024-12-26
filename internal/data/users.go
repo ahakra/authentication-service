@@ -72,6 +72,13 @@ func (r *UserRepository) Update(user *UserModel) error {
 
 	query := `UPDATE users SET name = ?, email = ?, password_hash = ?,  version = version + 1  , activated=?
 		WHERE id = ?`
-	_, err := r.DB.Exec(query, user.Name, user.Email, user.Password, user.ID, user.Activated)
+	_, err := r.DB.Exec(query, user.Name, user.Email, user.Password, user.Activated, user.ID)
+	return err
+}
+
+func (r *UserRepository) UpdateUserActivationStatus(userID int64, status bool) error {
+
+	query := `UPDATE users SET  version = version + 1  , activated=? WHERE id = ?`
+	_, err := r.DB.Exec(query, status, userID)
 	return err
 }

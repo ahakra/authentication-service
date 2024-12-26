@@ -138,17 +138,15 @@ func (s *UserService) UpdateUser(input *UserRegisterInput) *domain.OperationErro
 	pass := domain.Password{
 		PasswordHash: fromDatabaseUser.Password,
 	}
-	isMatch, err := pass.Matches(string(input.Password))
-	if err != nil && errors.Is(bcrypt.ErrMismatchedHashAndPassword, err) {
-		operationError.AddValidationError("Combination", "Invalid combination")
-		return operationError
-	} else if err != nil {
+	isMatch, err := pass.Matches(input.Password)
+	if err != nil {
 		operationError.AddValidationError("Combination", "Invalid combination")
 		return operationError
 	}
 	fmt.Printf("Match user:%v\n", isMatch)
 	if isMatch {
 		userModel.ID = fromDatabaseUser.ID
+		fmt.Printf("User info to update:%v\n", userModel)
 		err = s.RepoManager.UserRepo.Update(&userModel)
 		if err != nil {
 			operationError.AddDatabaseError("Database", err.Error())
@@ -188,4 +186,8 @@ func (s *UserService) ValidateUser(input RegenerateEmailTokenInput) (*ReGenerate
 		return &response, nil
 	}
 	return &response, nil
+}
+
+func (s *UserService) UpdateUserActivationStatus(userID int64, status bool) error {
+	return s.RepoManager.UserRepo.UpdateUserActivationStatus(userID, status)
 }

@@ -62,9 +62,14 @@ func (app *application) updateUserHandler(w http.ResponseWriter, r *http.Request
 		return
 	}
 
-	err = app.writeJSON(w, http.StatusCreated, nil, nil)
+	response := responseData{
+		"data": "User update successfully ",
+	}
+
+	err = app.writeJSON(w, http.StatusCreated, response, nil)
 	if err != nil {
 		app.serverSideErrorResponse(w, r, err)
 		return
 	}
+
 }

@@ -12,6 +12,7 @@ type UserServiceInterface interface {
 	UpdateUser(input *UserRegisterInput) *domain.OperationErrors
 	ValidateUser(input RegenerateEmailTokenInput) (*ReGenerateEmailTokenResponse, error)
 	GetUserByID(userId int64) (*UserResponse, *domain.OperationErrors)
+	UpdateUserActivationStatus(userID int64, status bool) error
 }
 
 type TokenServiceInterface interface {

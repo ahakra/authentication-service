@@ -5,6 +5,7 @@ type UserRepositoryInterface interface {
 	GetByEmail(email string) (*UserModel, error)
 	Update(user *UserModel) error
 	GetById(userID int64) (*UserModel, error)
+	UpdateUserActivationStatus(userID int64, status bool) error
 }
 
 type TokenRepositoryInterface interface {

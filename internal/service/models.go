@@ -42,7 +42,7 @@ type ValidateTokenResponse struct {
 type UserRegisterInput struct {
 	Name      string `json:"name"`
 	Email     string `json:"email"`
-	Password  []byte `json:"password"`
+	Password  string `json:"password"`
 	Activated bool   `json:"activated"`
 }
 

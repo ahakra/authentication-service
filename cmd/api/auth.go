@@ -4,23 +4,20 @@ import (
 	"authentication-service/internal/data"
 	"authentication-service/internal/domain"
 	"authentication-service/internal/service"
+	"fmt"
 	"net/http"
-	"strings"
 	"time"
 )
 
 func (app *application) validateEmailHandler(w http.ResponseWriter, r *http.Request) {
-	authHeader := r.Header.Get("Authorization")
-	if authHeader == "" {
-		app.errorResponse(w, r, http.StatusUnauthorized, "Missing Authorization Token")
-		return
-	}
 
-	tokenString := strings.TrimPrefix(authHeader, "Bearer ")
-	if tokenString == "" {
-		app.errorResponse(w, r, http.StatusUnauthorized, "Missing Authorization Token")
+	tokenString, err := app.GetAuthStringFromHeader(w, r, "Authorization")
+
+	if err != nil {
+		app.badRequestResponse(w, r, MissingVerificationTokenError)
 		return
 	}
+	fmt.Printf("Validate Email token: %s\n", tokenString)
 
 	// Validate the token
 	validToken, err := app.services.TokenService.ValidateToken(tokenString, app.config.tokenConfig.secret)
@@ -41,6 +38,7 @@ func (app *application) validateEmailHandler(w http.ResponseWriter, r *http.Requ
 		app.errorResponse(w, r, http.StatusUnauthorized, "Missing or Invalid Token")
 		return
 	}
+	fmt.Printf("Validate Email userId from token: %d\n", userId)
 
 	// Get the tokens for the user and validate if the token is correct
 	tokens, err := app.services.TokenService.GetTokensForUserAndScope(userId, data.ActivateEmailToken)
@@ -52,6 +50,7 @@ func (app *application) validateEmailHandler(w http.ResponseWriter, r *http.Requ
 	// Check if the valid token exists in the list of user tokens
 	var validInput bool
 	for _, token := range tokens {
+		fmt.Printf("Validate Email tokens found for this user: %s\n", token.Hash)
 		if string(token.Hash) == tokenString {
 			validInput = true
 			_ = app.services.TokenService.DeleteToken([]byte(tokenString)) // Delete the used token
@@ -65,34 +64,17 @@ func (app *application) validateEmailHandler(w http.ResponseWriter, r *http.Requ
 		return
 	}
 
-	// Retrieve user by ID
-	user, opp := app.services.UserService.GetUserByID(userId)
-	if opp != nil && (opp.Validation != nil || opp.Database != nil) {
-		app.errorResponse(w, r, http.StatusUnprocessableEntity, opp)
+	err = app.services.UserService.UpdateUserActivationStatus(userId, true)
+	if err != nil {
+		app.serverSideErrorResponse(w, r, err)
 		return
 	}
-
-	// Update user to set isActivated to true
-	user.Activated = true
-	userUpdateInput := &service.UserRegisterInput{
-		Name:      user.Name,
-		Email:     user.Email,
-		Password:  user.Password,
-		Activated: user.Activated,
-	}
-	opp = app.services.UserService.UpdateUser(userUpdateInput)
-	if opp != nil && (opp.Validation != nil || opp.Database != nil) {
-		app.errorResponse(w, r, http.StatusUnprocessableEntity, opp)
-		return
-	}
-
-	// Return a success response
-	resp := responseData{
+	response := responseData{
 		"data": "User email successfully validated and activated",
 	}
-	err = app.writeJSON(w, http.StatusOK, resp, nil)
+	err = app.writeJSON(w, http.StatusCreated, response, nil)
 	if err != nil {
-		app.errorResponse(w, r, http.StatusInternalServerError, err.Error())
+		app.serverSideErrorResponse(w, r, err)
 		return
 	}
 }

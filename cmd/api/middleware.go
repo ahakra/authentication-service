@@ -5,7 +5,7 @@ import "net/http"
 func (app *application) PermissionsValidation(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 
-		tokenString, err := app.GetAuthStringFromHeader(w, r, "authorization_token")
+		tokenString, err := app.GetAuthStringFromHeader(w, r, "Authorization")
 		if err != nil {
 			app.errorResponse(w, r, http.StatusUnauthorized, MissingAuthTokenError)
 			return
