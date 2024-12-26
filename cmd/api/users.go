@@ -4,6 +4,7 @@ import (
 	"authentication-service/internal/data"
 	"authentication-service/internal/service"
 	"net/http"
+	"time"
 )
 
 func (app *application) registerUserHandler(w http.ResponseWriter, r *http.Request) {
@@ -28,6 +29,17 @@ func (app *application) registerUserHandler(w http.ResponseWriter, r *http.Reque
 	if err != nil {
 		app.errorResponse(w, r, http.StatusUnprocessableEntity, err)
 	}
+	dataToken := &data.Token{
+		Hash:   []byte(jwt),
+		UserID: userResponse.ID,
+		Expiry: time.Now().Add(app.config.tokenConfig.ttl),
+		Scope:  data.ActivateEmailToken,
+	}
+	_, err = app.services.TokenService.InsertToken(dataToken)
+	if err != nil {
+		app.serverSideErrorResponse(w, r, err)
+		return
+	}
 
 	userResponse.VerificationToken = jwt
 	err = app.writeJSON(w, http.StatusCreated, userResponse, nil)
@@ -50,5 +62,9 @@ func (app *application) updateUserHandler(w http.ResponseWriter, r *http.Request
 		return
 	}
 
-	app.writeJSON(w, http.StatusCreated, nil, nil)
+	err = app.writeJSON(w, http.StatusCreated, nil, nil)
+	if err != nil {
+		app.serverSideErrorResponse(w, r, err)
+		return
+	}
 }

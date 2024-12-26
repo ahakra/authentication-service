@@ -109,3 +109,6 @@ func (s *TokenService) DeleteToken(tokenHash []byte) error {
 func (s *TokenService) InsertToken(token *data.Token) (*data.Token, error) {
 	return s.RepoManager.TokenRepo.Insert(token)
 }
+func (s *TokenService) DeleteTokensForUser(userId int64, scope data.TokenScope) error {
+	return s.RepoManager.TokenRepo.DeleteTokensForUser(userId, scope)
+}

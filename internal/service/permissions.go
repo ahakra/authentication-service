@@ -57,7 +57,7 @@ func (s *PermissionsService) RemovePermission(userID int64, permission string) e
 	return nil
 }
 
-func (s *PermissionsService) GetPermissionsForUser(userID int64) ([]string, error) {
+func (s *PermissionsService) GetPermissionsForUser(userID int64) (data.Permissions, error) {
 	permissions, err := s.RepoManager.PermissionsRepo.GetAllForUser(userID)
 	if err != nil {
 		return nil, fmt.Errorf("could not retrieve user permissions: %w", err)

@@ -1,5 +1,16 @@
 package service
 
+// ------------------------------
+
+type LoginInput struct {
+	Email    string `json:"email"`
+	Password string `json:"password"`
+}
+
+type LoginInResponse struct {
+	AuthorizationToken string `json:"authorization_token"`
+}
+
 // -------------------------------
 
 type AddPermissionInput struct {

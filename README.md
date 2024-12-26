@@ -14,17 +14,17 @@ Go authentication service
 - [x] Add Token service routes
   - [x] Define the route for token creation (`r.Post("/tokens/email", app.ReGenerateEmailTokenHandler)`)
   - [x] Define the route for token validation (`"/tokens/validate", app.ValidateTokenHandler`)
+- [x] Add Permission insert
+  - [x] Define route for permission insertion
+  - [x] Implement logic to insert new permissions into the database
+- [x] Get and manage permissions for users
+  - [x] Create logic for fetching user-specific permissions
+  - [x] Implement updating permissions for a user (Add/Remove)
+- [x] Add Insert Token to database when creating new email
+
 ### ALL
 - [ ] Remodify all operation error
-
-### Permission Service:
-- [ ] Add Permission insert
-    - [ ] Define route for permission insertion
-    - [ ] Implement logic to insert new permissions into the database
-
-- [ ] Get and manage permissions for users
-    - [ ] Create logic for fetching user-specific permissions
-    - [ ] Implement updating permissions for a user (Add/Remove)
+- [ ] Refactoring
 
 ### User Service:
 - [ ] Add reset email
@@ -38,7 +38,6 @@ Go authentication service
 - [ ] Add regenerate password
     - [ ] Create an endpoint to regenerate the password (e.g., `/regeneratePassword`)
 
-- [ ] Add Insert Token to database when creating new email
 ### Testing and Improvements:
 - [ ] Write Unit tests
     - [ ] Write tests for token insertion

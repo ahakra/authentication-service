@@ -67,6 +67,17 @@ func (r *TokenRepository) Delete(hash []byte) error {
 
 	return nil
 }
+func (r *TokenRepository) DeleteTokensForUser(userID int64, scope TokenScope) error {
+	query := `DELETE FROM tokens WHERE user_id = ? and scope = ?`
+
+	_, err := r.DB.Exec(query, userID, string(scope))
+	if err != nil {
+		return fmt.Errorf("could not delete token: %w", err)
+	}
+
+	return nil
+}
+
 func (repo *TokenRepository) GetByUserID(userID int64) ([]Token, error) {
 	query := `SELECT hash, user_id, expiry, scope FROM tokens WHERE user_id = ?`
 

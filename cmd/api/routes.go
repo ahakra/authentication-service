@@ -21,18 +21,22 @@ func (app *application) routes() http.Handler {
 		r.Post("/users", app.registerUserHandler)
 		r.Put("/users", app.updateUserHandler)
 
-		//to do add login
 		//check again register with domain password due to change in type
 
 		r.Post("/auth/validateEmail", app.validateEmailHandler)
+		r.Post("/auth/login", app.loginHandler)
 
 		r.Post("/tokens/email", app.RegenerateEmailTokenHandler)
 		r.Post("/tokens/validate", app.ValidateTokenHandler)
 
-		//To Do create a middleware to check if user has access rights
-		r.Post("/permissions", app.AddPermissionHandler)
-		r.Post("/users/{userID}/permissions", app.AddPermissionToUserHandler)
-		r.Delete("/users/{userID}/permissions/{permissionID}", app.RemovePermissionFromUserHandler)
+		r.Group(func(r chi.Router) {
+			r.Use(app.PermissionsValidation)
+
+			r.Post("/permissions", app.AddPermissionHandler)
+			r.Post("/users/{userID}/permissions", app.AddPermissionToUserHandler)
+			r.Delete("/users/{userID}/permissions/{permissionID}", app.RemovePermissionFromUserHandler)
+		})
+
 	})
 
 	return r

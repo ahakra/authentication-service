@@ -2,9 +2,11 @@ package main
 
 import (
 	"authentication-service/internal/data"
+	"authentication-service/internal/domain"
 	"authentication-service/internal/service"
 	"net/http"
 	"strings"
+	"time"
 )
 
 func (app *application) validateEmailHandler(w http.ResponseWriter, r *http.Request) {
@@ -91,6 +93,66 @@ func (app *application) validateEmailHandler(w http.ResponseWriter, r *http.Requ
 	err = app.writeJSON(w, http.StatusOK, resp, nil)
 	if err != nil {
 		app.errorResponse(w, r, http.StatusInternalServerError, err.Error())
+		return
+	}
+}
+
+func (app *application) loginHandler(w http.ResponseWriter, r *http.Request) {
+
+	var input service.LoginInput
+	err := app.readJSON(w, r, input)
+	if err != nil {
+		app.badRequestResponse(w, r, err)
+		return
+	}
+
+	user, opErr := app.services.UserService.GetUserByEmail(input.Email)
+	if opErr != nil {
+		app.serverSideErrorResponse(w, r, err)
+		return
+	}
+
+	pass := domain.Password{
+		PasswordHash: user.Password,
+	}
+	match, err := pass.Matches(input.Password)
+	if err != nil {
+		app.serverSideErrorResponse(w, r, err)
+		return
+	}
+
+	if !match {
+		app.badRequestResponse(w, r, InvalidCombinationError)
+		return
+	}
+	err = app.services.TokenService.DeleteTokensForUser(user.ID, data.UserAccessToken)
+	if err != nil {
+		app.serverSideErrorResponse(w, r, err)
+		return
+	}
+	token, err := app.services.TokenService.CreateAccessToken(user.ID, data.UserAccessToken, app.config.tokenConfig.ttl, app.config.tokenConfig.secret)
+
+	if err != nil {
+		app.serverSideErrorResponse(w, r, err)
+		return
+	}
+	dataToken := &data.Token{
+		Hash:   []byte(token),
+		UserID: user.ID,
+		Expiry: time.Now().Add(app.config.tokenConfig.ttl),
+		Scope:  data.UserAccessToken,
+	}
+	_, err = app.services.TokenService.InsertToken(dataToken)
+	if err != nil {
+		app.serverSideErrorResponse(w, r, err)
+		return
+	}
+	res := &service.LoginInResponse{
+		AuthorizationToken: token,
+	}
+	err = app.writeJSON(w, http.StatusCreated, res, nil)
+	if err != nil {
+		app.serverSideErrorResponse(w, r, err)
 		return
 	}
 }

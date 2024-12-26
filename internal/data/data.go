@@ -12,6 +12,7 @@ type TokenRepositoryInterface interface {
 	Delete(hash []byte) error
 	GetByUserID(userID int64) ([]Token, error)
 	GetByUserIDAndScope(userID int64, scope TokenScope) ([]Token, error)
+	DeleteTokensForUser(userID int64, scope TokenScope) error
 }
 
 type PermissionsRepositoryInterface interface {

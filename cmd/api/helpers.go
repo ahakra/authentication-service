@@ -77,3 +77,19 @@ func (app *application) readJSON(w http.ResponseWriter, r *http.Request, dst any
 
 	return nil
 }
+
+func (app *application) GetAuthStringFromHeader(w http.ResponseWriter, r *http.Request, authKey string) (string, error) {
+
+	authHeader := r.Header.Get(authKey)
+	if authHeader == "" {
+
+		return "", MissingAuthTokenError
+	}
+
+	tokenString := strings.TrimPrefix(authHeader, "Bearer ")
+	if tokenString == "" {
+
+		return "", MissingAuthTokenError
+	}
+	return tokenString, nil
+}

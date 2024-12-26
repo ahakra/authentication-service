@@ -23,12 +23,13 @@ type TokenServiceInterface interface {
 	DeleteToken(tokenHash []byte) error
 	InsertToken(token *data.Token) (*data.Token, error)
 	ExtractUserIdFromToken(tokenString string, secret string) (int64, error)
+	DeleteTokensForUser(userId int64, scope data.TokenScope) error
 }
 type PermissionsServiceInterface interface {
 	AddPermission(permission string) error
 	AddPermissionToUser(userID int64, permission string) error
 	RemovePermission(userID int64, permission string) error
-	GetPermissionsForUser(userID int64) ([]string, error)
+	GetPermissionsForUser(userID int64) (data.Permissions, error)
 }
 type ServiceManager struct {
 	UserService        UserServiceInterface
