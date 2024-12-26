@@ -23,7 +23,6 @@ type TokenServiceInterface interface {
 	GetTokensForUserAndScope(userID int64, scope data.TokenScope) ([]data.Token, error)
 	DeleteToken(tokenHash []byte) error
 	InsertToken(token *data.Token) (*data.Token, error)
-	ExtractUserIdFromToken(tokenString string, secret string) (int64, error)
 	DeleteTokensForUser(userId int64, scope data.TokenScope) error
 }
 type PermissionsServiceInterface interface {

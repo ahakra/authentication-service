@@ -25,14 +25,11 @@ func (app *application) RegenerateEmailTokenHandler(w http.ResponseWriter, r *ht
 		app.badRequestResponse(w, r, InvalidCombinationError)
 		return
 	}
-	tokens, err := app.services.TokenService.GetTokensForUserAndScope(res.ID, data.ActivateEmailToken)
+
+	err = app.services.TokenService.DeleteTokensForUser(res.ID, data.ActivateEmailToken)
 	if err != nil {
 		app.serverSideErrorResponse(w, r, err)
 		return
-	}
-
-	for _, token := range tokens {
-		app.services.TokenService.DeleteToken(token.Hash)
 	}
 
 	newToken, err := app.services.TokenService.CreateAccessToken(res.ID, data.ActivateEmailToken, app.config.tokenConfig.ttl, app.config.tokenConfig.secret)

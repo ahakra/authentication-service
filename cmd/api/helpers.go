@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"github.com/golang-jwt/jwt/v4"
 	"io"
 	"net/http"
 	"strings"
@@ -92,4 +93,31 @@ func (app *application) GetAuthStringFromHeader(w http.ResponseWriter, r *http.R
 		return "", MissingAuthTokenError
 	}
 	return tokenString, nil
+}
+
+func (app *application) ExtractUserIdFromToken(tokenString string, secret string) (int64, error) {
+	var secretKey = []byte(secret)
+
+	token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
+		if token.Method != jwt.SigningMethodHS256 {
+			return nil, fmt.Errorf("invalid signing method")
+		}
+		return secretKey, nil
+	})
+
+	if err != nil || !token.Valid {
+		return 0, fmt.Errorf("invalid or expired token")
+	}
+
+	claims, ok := token.Claims.(jwt.MapClaims)
+	if !ok {
+		return 0, fmt.Errorf("invalid claims")
+	}
+
+	userID, ok := claims["sub"].(float64)
+	if !ok {
+		return 0, fmt.Errorf("userID is missing or invalid in token")
+	}
+
+	return int64(userID), nil
 }

@@ -33,7 +33,7 @@ func (app *application) validateEmailHandler(w http.ResponseWriter, r *http.Requ
 	}
 
 	// Extract userId from the token
-	userId, err := app.services.TokenService.ExtractUserIdFromToken(tokenString, app.config.tokenConfig.secret)
+	userId, err := app.ExtractUserIdFromToken(tokenString, app.config.tokenConfig.secret)
 	if err != nil {
 		app.errorResponse(w, r, http.StatusUnauthorized, "Missing or Invalid Token")
 		return
@@ -53,11 +53,15 @@ func (app *application) validateEmailHandler(w http.ResponseWriter, r *http.Requ
 		fmt.Printf("Validate Email tokens found for this user: %s\n", token.Hash)
 		if string(token.Hash) == tokenString {
 			validInput = true
-			_ = app.services.TokenService.DeleteToken([]byte(tokenString)) // Delete the used token
 			break
 		}
 	}
 
+	err = app.services.TokenService.DeleteTokensForUser(userId, data.ActivateEmailToken)
+	if err != nil {
+		app.serverSideErrorResponse(w, r, err)
+		return
+	}
 	// If the token is invalid, return error
 	if !validInput {
 		app.errorResponse(w, r, http.StatusUnauthorized, "Invalid token")

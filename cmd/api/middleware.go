@@ -19,7 +19,7 @@ func (app *application) PermissionsValidation(next http.Handler) http.Handler {
 			return
 		}
 		app.logger.Info("Validate token", "valid", valid)
-		userId, err := app.services.TokenService.ExtractUserIdFromToken(tokenString, app.config.tokenConfig.secret)
+		userId, err := app.ExtractUserIdFromToken(tokenString, app.config.tokenConfig.secret)
 		if err != nil {
 			app.errorResponse(w, r, http.StatusUnauthorized, err)
 			return

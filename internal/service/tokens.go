@@ -3,7 +3,6 @@ package service
 import (
 	"authentication-service/internal/data"
 	"errors"
-	"fmt"
 	"github.com/golang-jwt/jwt/v4"
 	"time"
 )
@@ -64,33 +63,6 @@ func (s *TokenService) ValidateToken(tokenString string, secret string) (bool, e
 	}
 
 	return false, errors.New("invalid token")
-}
-
-func (s *TokenService) ExtractUserIdFromToken(tokenString string, secret string) (int64, error) {
-	var secretKey = []byte(secret)
-
-	token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
-		if token.Method != jwt.SigningMethodHS256 {
-			return nil, fmt.Errorf("invalid signing method")
-		}
-		return secretKey, nil
-	})
-
-	if err != nil || !token.Valid {
-		return 0, fmt.Errorf("invalid or expired token")
-	}
-
-	claims, ok := token.Claims.(jwt.MapClaims)
-	if !ok {
-		return 0, fmt.Errorf("invalid claims")
-	}
-
-	userID, ok := claims["sub"].(float64)
-	if !ok {
-		return 0, fmt.Errorf("userID is missing or invalid in token")
-	}
-
-	return int64(userID), nil
 }
 
 func (s *TokenService) GetTokensForUser(userID int64) ([]data.Token, error) {
