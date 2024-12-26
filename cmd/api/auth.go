@@ -82,7 +82,7 @@ func (app *application) validateEmailHandler(w http.ResponseWriter, r *http.Requ
 func (app *application) loginHandler(w http.ResponseWriter, r *http.Request) {
 
 	var input service.LoginInput
-	err := app.readJSON(w, r, input)
+	err := app.readJSON(w, r, &input)
 	if err != nil {
 		app.badRequestResponse(w, r, err)
 		return

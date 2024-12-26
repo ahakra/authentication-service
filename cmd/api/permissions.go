@@ -64,9 +64,14 @@ func (app *application) RemovePermissionFromUserHandler(w http.ResponseWriter, r
 		http.Error(w, "Invalid user ID", http.StatusBadRequest)
 		return
 	}
-	permission := chi.URLParam(r, "permission")
+	var input service.AddPermissionInput
+	err = app.readJSON(w, r, &input)
+	if err != nil {
+		app.badRequestResponse(w, r, err)
+		return
+	}
 
-	err = app.services.PermissionsService.RemovePermission(userID, permission)
+	err = app.services.PermissionsService.RemovePermission(userID, input.Permission)
 	if err != nil {
 		app.serverSideErrorResponse(w, r, err)
 		return

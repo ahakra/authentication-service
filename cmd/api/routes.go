@@ -34,7 +34,7 @@ func (app *application) routes() http.Handler {
 
 			r.Post("/permissions", app.AddPermissionHandler)
 			r.Post("/users/{userID}/permissions", app.AddPermissionToUserHandler)
-			r.Delete("/users/{userID}/permissions/{permissionID}", app.RemovePermissionFromUserHandler)
+			r.Delete("/users/{userID}/permissions", app.RemovePermissionFromUserHandler)
 		})
 
 	})

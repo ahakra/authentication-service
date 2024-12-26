@@ -1,6 +1,6 @@
 CREATE TABLE IF NOT EXISTS permissions (
                                            id integer PRIMARY KEY AUTOINCREMENT,
-                                           permission text NOT NULL
+                                           permission text unique NOT NULL
 );
 
 CREATE TABLE IF NOT EXISTS users_permissions (
